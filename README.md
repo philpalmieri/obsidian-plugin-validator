@@ -1,0 +1,74 @@
+# obsidian-plugin-validater
+
+Run Obsidian's community-plugin review checks on your own machine, before you open a submission PR. It replicates the mechanical parts of the review so you can fix problems in seconds instead of waiting on a reviewer round-trip.
+
+It does two things:
+
+1. **Manifest & submission checks** (in Node, no plugin execution): validates `manifest.json` against the [submission requirements](https://docs.obsidian.md/Plugins/Releasing/Submission+requirements+for+plugins) (required/allowed keys, forbidden words, id/version/description format), confirms `versions.json` has an entry for the current version, and checks for `README.md` and `LICENSE`.
+2. **ESLint** with the official [`eslint-plugin-obsidianmd`](https://github.com/obsidianmd/eslint-plugin-obsidianmd) recommended ruleset (no `innerHTML`, detach leaves on unload, `Platform` guards for Node APIs, sentence-case UI text, no `console.log`, restricted globals, and more).
+
+## Setup
+
+Clone it once and install its dependencies:
+
+```bash
+git clone https://github.com/philpalmieri/obsidian-plugin-validater.git
+cd obsidian-plugin-validater
+npm install
+```
+
+## Usage
+
+Point it at the plugin you want to check:
+
+```bash
+node bin/cli.mjs ~/dev/my-plugin
+```
+
+Or run it from inside your plugin's folder with no argument (defaults to the current directory):
+
+```bash
+cd ~/dev/my-plugin
+node /path/to/obsidian-plugin-validater/bin/cli.mjs
+```
+
+### Options
+
+| Flag | Description |
+| --- | --- |
+| `--src <dir>` | Source folder to lint (default: `src`) |
+| `--no-lint` | Run manifest/file checks only, skip ESLint |
+| `--fix` | Apply ESLint autofixes where possible |
+| `--typed` | Enable type-aware linting (uses `<plugin>/tsconfig.json`) |
+| `--tsconfig <p>` | tsconfig path for `--typed` (default: `./tsconfig.json`) |
+| `-h`, `--help` | Show help |
+
+Type-aware linting is off by default so it runs on any repo without a tsconfig. A few rules need it; turn it on with `--typed` if you want the full set.
+
+## Exit codes
+
+- `0` - all checks passed (warnings allowed)
+- `1` - one or more errors; fix before submitting
+- `2` - bad usage (unknown flag)
+
+Wire it into CI or a pre-release script by relying on the exit code.
+
+## Using the ESLint config directly
+
+If you'd rather run ESLint yourself, reuse the same flat config from your plugin's `eslint.config.mjs`:
+
+```js
+// eslint.config.mjs
+import { obsidianConfig } from "/path/to/obsidian-plugin-validater/lib/eslint-config.mjs";
+
+export default obsidianConfig();
+// or type-aware: obsidianConfig({ typed: true, tsconfig: "./tsconfig.json" })
+```
+
+## What it does not do
+
+This covers the mechanical checks only. A human reviewer still looks at design, security, and whether your plugin does what it claims. Passing locally makes that review faster; it isn't a guarantee of acceptance. See the [full plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
+
+## License
+
+MIT

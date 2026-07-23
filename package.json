@@ -1,0 +1,30 @@
+{
+  "name": "obsidian-plugin-validater",
+  "version": "1.0.0",
+  "description": "Run Obsidian community-plugin review checks locally before you submit.",
+  "type": "module",
+  "bin": {
+    "obsidian-plugin-validater": "bin/cli.mjs"
+  },
+  "scripts": {
+    "validate": "node bin/cli.mjs"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "validate",
+    "lint",
+    "eslint",
+    "manifest",
+    "community-plugin"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "^8.64.0",
+    "eslint": "^10.7.0",
+    "eslint-plugin-obsidianmd": "^0.4.1"
+  }
+}
