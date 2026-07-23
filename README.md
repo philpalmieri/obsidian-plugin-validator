@@ -39,11 +39,11 @@ node /path/to/obsidian-plugin-validater/bin/cli.mjs
 | `--src <dir>` | Source folder to lint (default: `src`) |
 | `--no-lint` | Run manifest/file checks only, skip ESLint |
 | `--fix` | Apply ESLint autofixes where possible |
-| `--typed` | Enable type-aware linting (uses `<plugin>/tsconfig.json`) |
-| `--tsconfig <p>` | tsconfig path for `--typed` (default: `./tsconfig.json`) |
+| `--no-typed` | Disable type-aware linting (some obsidianmd rules get skipped) |
+| `--tsconfig <p>` | tsconfig path for type-aware linting (default: `./tsconfig.json`) |
 | `-h`, `--help` | Show help |
 
-Type-aware linting is off by default so it runs on any repo without a tsconfig. A few rules need it; turn it on with `--typed` if you want the full set.
+The obsidianmd recommended set includes type-aware rules, so linting runs type-aware by default. It uses the plugin's own `tsconfig.json`; if the plugin doesn't have one, a temporary tsconfig is generated for the run and removed afterward.
 
 ## Exit codes
 

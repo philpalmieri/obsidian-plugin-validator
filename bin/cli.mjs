@@ -8,13 +8,13 @@
 //   --src <dir>     source folder to lint (default: src)
 //   --no-lint       skip the ESLint pass, run manifest/file checks only
 //   --fix           apply ESLint autofixes where possible
-//   --typed         enable type-aware linting (uses <plugin>/tsconfig.json)
-//   --tsconfig <p>  tsconfig path for --typed (default: ./tsconfig.json)
+//   --no-typed      disable type-aware linting (some obsidianmd rules will be skipped)
+//   --tsconfig <p>  tsconfig path for type-aware linting (default: ./tsconfig.json;
+//                   a temporary one is synthesized if the plugin has none)
 //   -h, --help      show this help
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { checkManifest } from "../lib/check-manifest.mjs";
-import { obsidianConfig } from "../lib/eslint-config.mjs";
 
 const RESET = "\x1b[0m";
 const RED = (s) => `\x1b[31m${s}${RESET}`;
@@ -23,7 +23,7 @@ const YELLOW = (s) => `\x1b[33m${s}${RESET}`;
 const DIM = (s) => `\x1b[2m${s}${RESET}`;
 
 function parseArgs(argv) {
-  const opts = { dir: ".", src: "src", lint: true, fix: false, typed: false, tsconfig: "./tsconfig.json" };
+  const opts = { dir: ".", src: "src", lint: true, fix: false, typed: "auto", tsconfig: "./tsconfig.json" };
   const positional = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -31,6 +31,7 @@ function parseArgs(argv) {
     else if (a === "--no-lint") opts.lint = false;
     else if (a === "--fix") opts.fix = true;
     else if (a === "--typed") opts.typed = true;
+    else if (a === "--no-typed") opts.typed = false;
     else if (a === "--src") opts.src = argv[++i];
     else if (a === "--tsconfig") opts.tsconfig = argv[++i];
     else if (a.startsWith("--")) {
@@ -51,15 +52,18 @@ Options:
   --src <dir>     source folder to lint (default: src)
   --no-lint       skip the ESLint pass, run manifest/file checks only
   --fix           apply ESLint autofixes where possible
-  --typed         enable type-aware linting (uses <plugin>/tsconfig.json)
-  --tsconfig <p>  tsconfig path for --typed (default: ./tsconfig.json)
+  --no-typed      disable type-aware linting (some obsidianmd rules will be skipped)
+  --tsconfig <p>  tsconfig path for type-aware linting (default: ./tsconfig.json;
+                  a temporary one is synthesized if the plugin has none)
   -h, --help      show this help
 `;
 
-async function runLint(dir, srcDir, { fix, typed, tsconfig }) {
+// Runs inside the plugin dir (cwd already chdir'd there) so eslint-plugin-obsidianmd
+// can read the plugin's manifest.json and tsconfig at load time.
+async function runLint(srcDir, { fix, typed, tsconfig }) {
+  const { obsidianConfig } = await import("../lib/eslint-config.mjs");
   const { ESLint } = await import("eslint");
   const eslint = new ESLint({
-    cwd: resolve(dir),
     overrideConfigFile: true,
     baseConfig: obsidianConfig({ typed, tsconfig }),
     fix,
@@ -109,9 +113,53 @@ async function main() {
       console.log(`\nESLint (obsidianmd recommended)`);
       console.log(`  ${YELLOW("warn")}  source folder "${opts.src}" not found; skipping lint (use --src)`);
     } else {
-      console.log(`\nESLint (obsidianmd recommended) - ${DIM(opts.src + "/**/*.ts")}`);
+      // The obsidianmd recommended set includes type-aware rules, so we always run
+      // type-aware. Prefer the plugin's own tsconfig; if it has none, synthesize a
+      // temporary one so the full ruleset can run instead of crashing.
+      const tsconfigPath = join(dir, opts.tsconfig);
+      let effectiveTsconfig = opts.tsconfig;
+      let tempTsconfig = null;
+
+      if (opts.typed === false) {
+        console.log(`\nESLint (obsidianmd recommended, syntax-only) - ${DIM(opts.src + "/**/*.ts")}`);
+      } else {
+        if (!existsSync(tsconfigPath)) {
+          tempTsconfig = join(dir, "tsconfig.opv-tmp.json");
+          writeFileSync(
+            tempTsconfig,
+            JSON.stringify(
+              {
+                compilerOptions: {
+                  target: "ES2020",
+                  module: "ESNext",
+                  moduleResolution: "node",
+                  strict: false,
+                  skipLibCheck: true,
+                  noEmit: true,
+                  allowJs: false,
+                },
+                include: [`${opts.src}/**/*.ts`],
+              },
+              null,
+              2
+            )
+          );
+          effectiveTsconfig = "./tsconfig.opv-tmp.json";
+          console.log(DIM(`  note  no ${opts.tsconfig} found; using a temporary tsconfig for type-aware linting`));
+        }
+        console.log(`\nESLint (obsidianmd recommended, type-aware) - ${DIM(opts.src + "/**/*.ts")}`);
+      }
+
+      // eslint-plugin-obsidianmd reads manifest.json/tsconfig relative to cwd at
+      // load time, so run from inside the plugin directory.
+      const prevCwd = process.cwd();
       try {
-        const res = await runLint(dir, opts.src, opts);
+        process.chdir(dir);
+        const res = await runLint(opts.src, {
+          ...opts,
+          typed: opts.typed !== false,
+          tsconfig: effectiveTsconfig,
+        });
         lintErrors = res.errorCount;
         lintWarnings = res.warningCount;
         if (res.output.trim()) console.log(res.output.trimEnd());
@@ -120,6 +168,9 @@ async function main() {
       } catch (e) {
         console.error(`  ${RED("ERROR")} ESLint failed to run: ${e.message}`);
         lintErrors++;
+      } finally {
+        process.chdir(prevCwd);
+        if (tempTsconfig && existsSync(tempTsconfig)) rmSync(tempTsconfig);
       }
     }
   }
