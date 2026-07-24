@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// obsidian-plugin-validater: run Obsidian's community-plugin review checks locally.
+// obsidian-plugin-validator: run Obsidian's community-plugin review checks locally.
 //
 // Usage:
 //   node bin/cli.mjs [path-to-plugin]   (defaults to current directory)
@@ -43,7 +43,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const HELP = `obsidian-plugin-validater - run Obsidian community-plugin review checks locally
+const HELP = `obsidian-plugin-validator - run Obsidian community-plugin review checks locally
 
 Usage:
   node bin/cli.mjs [path-to-plugin] [options]

@@ -1,11 +1,17 @@
 {
-  "name": "obsidian-plugin-validater",
+  "name": "obsidian-plugin-validator",
   "version": "1.0.0",
   "description": "Run Obsidian community-plugin review checks locally before you submit.",
   "type": "module",
   "bin": {
-    "obsidian-plugin-validater": "bin/cli.mjs"
+    "obsidian-plugin-validator": "bin/cli.mjs"
   },
+  "files": [
+    "bin",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "validate": "node bin/cli.mjs"
   },
@@ -18,9 +24,22 @@
     "manifest",
     "community-plugin"
   ],
+  "author": "Phil Palmieri",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/philpalmieri/obsidian-plugin-validator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/philpalmieri/obsidian-plugin-validator/issues"
+  },
+  "homepage": "https://github.com/philpalmieri/obsidian-plugin-validator#readme",
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "dependencies": {
     "@typescript-eslint/parser": "^8.64.0",

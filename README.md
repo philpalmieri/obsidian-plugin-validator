@@ -1,4 +1,6 @@
-# obsidian-plugin-validater
+# obsidian-plugin-validator
+
+[![npm](https://img.shields.io/npm/v/obsidian-plugin-validator)](https://www.npmjs.com/package/obsidian-plugin-validator)
 
 Run Obsidian's community-plugin review checks on your own machine, before you open a submission PR. It replicates the mechanical parts of the review so you can fix problems in seconds instead of waiting on a reviewer round-trip.
 
@@ -7,29 +9,35 @@ It does two things:
 1. **Manifest & submission checks** (in Node, no plugin execution): validates `manifest.json` against the [submission requirements](https://docs.obsidian.md/Plugins/Releasing/Submission+requirements+for+plugins) (required/allowed keys, forbidden words, id/version/description format), confirms `versions.json` has an entry for the current version, and checks for `README.md` and `LICENSE`.
 2. **ESLint** with the official [`eslint-plugin-obsidianmd`](https://github.com/obsidianmd/eslint-plugin-obsidianmd) recommended ruleset (no `innerHTML`, detach leaves on unload, `Platform` guards for Node APIs, sentence-case UI text, no `console.log`, restricted globals, and more).
 
-## Setup
-
-Clone it once and install its dependencies:
-
-```bash
-git clone https://github.com/philpalmieri/obsidian-plugin-validater.git
-cd obsidian-plugin-validater
-npm install
-```
-
 ## Usage
 
-Point it at the plugin you want to check:
+The fastest way, no install, run it straight from npm against any plugin folder:
 
 ```bash
-node bin/cli.mjs ~/dev/my-plugin
+npx obsidian-plugin-validator ~/dev/my-plugin
 ```
 
-Or run it from inside your plugin's folder with no argument (defaults to the current directory):
+Or from inside your plugin's folder (defaults to the current directory):
 
 ```bash
 cd ~/dev/my-plugin
-node /path/to/obsidian-plugin-validater/bin/cli.mjs
+npx obsidian-plugin-validator
+```
+
+Install it globally if you run it often:
+
+```bash
+npm install -g obsidian-plugin-validator
+obsidian-plugin-validator ~/dev/my-plugin
+```
+
+### From source
+
+```bash
+git clone https://github.com/philpalmieri/obsidian-plugin-validator.git
+cd obsidian-plugin-validator
+npm install
+node bin/cli.mjs ~/dev/my-plugin
 ```
 
 ### Options
@@ -59,7 +67,7 @@ If you'd rather run ESLint yourself, reuse the same flat config from your plugin
 
 ```js
 // eslint.config.mjs
-import { obsidianConfig } from "/path/to/obsidian-plugin-validater/lib/eslint-config.mjs";
+import { obsidianConfig } from "obsidian-plugin-validator/lib/eslint-config.mjs";
 
 export default obsidianConfig();
 // or type-aware: obsidianConfig({ typed: true, tsconfig: "./tsconfig.json" })
