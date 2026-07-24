@@ -1,6 +1,6 @@
 {
   "name": "obsidian-plugin-validator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run Obsidian community-plugin review checks locally before you submit.",
   "type": "module",
   "bin": {
