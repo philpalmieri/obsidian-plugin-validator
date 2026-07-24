@@ -1,13 +1,16 @@
 # Changelog
 
-## 1.0.1
+## 1.0.2
 
-- First release published to npm with build provenance (signed on GitHub Actions).
+- First release published to npm (bootstrap publish, unsigned). Publishing the
+  package under this name is what lets npm trusted publishing be configured for
+  all later releases.
 - Run it with no install: `npx obsidian-plugin-validator <path-to-plugin>`.
 - Packaging: added repository/homepage/bugs metadata, a `files` allowlist, and
   `publishConfig` for public access + provenance.
 - CI: publish workflow using npm trusted publishing (OIDC), triggered on GitHub
-  releases, with a tag/version guard.
+  releases, with a tag/version guard. Releases from 1.0.3 onward are signed with
+  build provenance on GitHub Actions.
 
 ## 1.0.0
 
