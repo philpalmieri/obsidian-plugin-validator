@@ -9,6 +9,16 @@ It does two things:
 1. **Manifest & submission checks** (in Node, no plugin execution): validates `manifest.json` against the [submission requirements](https://docs.obsidian.md/Plugins/Releasing/Submission+requirements+for+plugins) (required/allowed keys, forbidden words, id/version/description format), confirms `versions.json` has an entry for the current version, and checks for `README.md` and `LICENSE`.
 2. **ESLint** with the official [`eslint-plugin-obsidianmd`](https://github.com/obsidianmd/eslint-plugin-obsidianmd) recommended ruleset (no `innerHTML`, detach leaves on unload, `Platform` guards for Node APIs, sentence-case UI text, no `console.log`, restricted globals, and more).
 
+## Examples
+
+A clean run, every check passed:
+
+![Validator output showing all checks passing](assets/validator-pass.png)
+
+A failing run, with the specific problems to fix before submitting:
+
+![Validator output showing failed checks](assets/validator-fail.png)
+
 ## Usage
 
 The fastest way, no install, run it straight from npm against any plugin folder:
