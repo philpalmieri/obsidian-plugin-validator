@@ -1,0 +1,9 @@
+{
+  "id": "fixture-clean",
+  "name": "Fixture Clean",
+  "version": "1.0.0",
+  "minAppVersion": "1.7.2",
+  "description": "A clean fixture with no review findings, used for testing.",
+  "author": "Test",
+  "isDesktopOnly": false
+}

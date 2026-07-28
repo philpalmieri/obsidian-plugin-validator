@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test
+        run: npm test
+
       - name: Verify package version matches the release tag
         run: |
           PKG_VERSION="$(node -p "require('./package.json').version")"

@@ -1,0 +1,9 @@
+{
+  "id": "fixture-bad",
+  "name": "Fixture Bad",
+  "version": "1.0.0",
+  "minAppVersion": "1.7.2",
+  "description": "A fixture that reproduces review findings, used for testing.",
+  "author": "Test",
+  "isDesktopOnly": false
+}
