@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.7-rc.0
+
+- Update ESLint, TypeScript ESLint, and the Obsidian ESLint plugin.
+- Fix vulnerable brace-expansion, fast-uri, and Moment dependencies. Bundle the
+  patched Obsidian ESLint plugin dependency tree so the fix reaches CLI consumers.
+- Fix syntax-only linting to disable Obsidian rules requiring type information,
+  while retaining the regex-lookbehind and static-styles checks.
+- Correct the Node.js engine range to match ESLint's existing requirements:
+  `^20.19.0 || ^22.13.0 || >=24`.
+- Add CI tests across supported Node.js runtimes, dependency auditing, a packed
+  installation smoke test, and scheduled Dependabot updates.
+- Update and pin GitHub Actions. Audit and test the packed CLI before publishing;
+  publish prereleases to `next` instead of `latest`.
+
 ## 1.0.2
 
 - First release published to npm (bootstrap publish, unsigned). Publishing the

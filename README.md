@@ -21,6 +21,9 @@ A failing run, with the specific problems to fix before submitting:
 
 ## Usage
 
+Requires Node.js `^20.19.0 || ^22.13.0 || >=24`, matching ESLint's supported
+runtime ranges. Node.js 18 and 21 are not supported.
+
 The fastest way, no install, run it straight from npm against any plugin folder:
 
 ```bash
@@ -70,6 +73,28 @@ The obsidianmd recommended set includes type-aware rules, so linting runs type-a
 - `2` - bad usage (unknown flag)
 
 Wire it into CI or a pre-release script by relying on the exit code.
+
+## Development and release checks
+
+```bash
+npm ci
+npm audit --audit-level=low
+npm test
+npm run test:package
+```
+
+The package smoke test packs the CLI, installs it in an isolated consumer project,
+audits that installation, and runs it against the clean and failing fixtures.
+It requires access to the npm registry.
+
+The CLI bundles the Obsidian ESLint plugin's dependency tree, including a patched
+Moment version. npm only applies dependency overrides in the root project, so
+bundling carries that fix to installed CLI packages (including npm 12 and local
+tarball installs). This increases the package download size.
+Keep `package-lock.json` committed when updating dependencies. Remove the Moment
+override and bundling once the upstream plugin depends on a patched version.
+
+GitHub prereleases publish to npm's `next` tag; stable releases publish to `latest`.
 
 ## Using the ESLint config directly
 

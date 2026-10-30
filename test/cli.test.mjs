@@ -14,10 +14,10 @@ const cli = join(repoRoot, "bin", "cli.mjs");
 
 // Run the CLI against a fixture. Returns { code, output }; execFileSync throws
 // on a non-zero exit, so capture that and read the combined stdio off the error.
-function runValidator(fixture) {
+function runValidator(fixture, ...args) {
   const fixtureDir = join(here, "fixtures", fixture);
   try {
-    const stdout = execFileSync(process.execPath, [cli, fixtureDir], {
+    const stdout = execFileSync(process.execPath, [cli, fixtureDir, ...args], {
       cwd: repoRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
@@ -49,4 +49,19 @@ test("passes a clean plugin with no findings", () => {
   assert.equal(code, 0, `validator should exit zero on a clean plugin\n${output}`);
   assert.match(output, /All checks passed/);
   assert.doesNotMatch(output, /Checks failed/);
+});
+
+test("syntax-only linting passes a clean plugin without type information", () => {
+  const { code, output } = runValidator("clean", "--no-typed");
+  assert.equal(code, 0, output);
+  assert.match(output, /syntax-only/);
+  assert.match(output, /All checks passed/);
+});
+
+test("syntax-only linting still catches both review findings", () => {
+  const { code, output } = runValidator("bad", "--no-typed");
+  assert.equal(code, 1, output);
+  assert.doesNotMatch(output, /ESLint failed to run/);
+  assert.match(output, /obsidianmd\/regex-lookbehind/);
+  assert.match(output, /obsidianmd\/no-static-styles-assignment/);
 });

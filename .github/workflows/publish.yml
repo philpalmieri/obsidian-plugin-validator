@@ -12,9 +12,11 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -27,10 +29,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit dependencies
+        run: npm audit --audit-level=low
+
       - name: Test
         run: npm test
 
+      - name: Test published package
+        run: npm run test:package
+
       - name: Verify package version matches the release tag
+        env:
+          RELEASE_IS_PRERELEASE: ${{ github.event.release.prerelease }}
         run: |
           PKG_VERSION="$(node -p "require('./package.json').version")"
           TAG="${GITHUB_REF_NAME#v}"
@@ -38,6 +48,12 @@ jobs:
             echo "package.json version ($PKG_VERSION) does not match tag ($TAG)" >&2
             exit 1
           fi
+          if [[ "$PKG_VERSION" == *-* && "$RELEASE_IS_PRERELEASE" != "true" ]]; then
+            echo "Prerelease package versions must use a GitHub prerelease (npm next tag)" >&2
+            exit 1
+          fi
 
       - name: Publish
-        run: npm publish --provenance --access public
+        env:
+          NPM_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
+        run: npm publish --provenance --access public --tag "$NPM_TAG"
