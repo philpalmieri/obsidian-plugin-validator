@@ -1,6 +1,6 @@
 {
   "name": "obsidian-plugin-validator",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Run Obsidian community-plugin review checks locally before you submit.",
   "type": "module",
   "bin": {
@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "validate": "node bin/cli.mjs",
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test test/cli.test.mjs",
+    "test:package": "node --test scripts/package.test.mjs"
   },
   "keywords": [
     "obsidian",
@@ -36,16 +37,24 @@
   },
   "homepage": "https://github.com/philpalmieri/obsidian-plugin-validator#readme",
   "engines": {
-    "node": ">=18"
+    "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
   },
   "dependencies": {
-    "@typescript-eslint/parser": "^8.64.0",
-    "eslint": "^10.7.0",
-    "eslint-plugin-obsidianmd": "^0.4.1",
-    "typescript-eslint": "^8.65.0"
-  }
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-obsidianmd": "^0.4.2",
+    "typescript-eslint": "^8.72.1"
+  },
+  "overrides": {
+    "obsidian": {
+      "moment": "^2.31.0"
+    }
+  },
+  "bundleDependencies": [
+    "eslint-plugin-obsidianmd"
+  ]
 }
