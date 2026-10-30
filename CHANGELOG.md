@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.7-rc.0
+## 1.0.7
 
 - Update ESLint, TypeScript ESLint, and the Obsidian ESLint plugin.
 - Fix vulnerable brace-expansion, fast-uri, and Moment dependencies. Bundle the
